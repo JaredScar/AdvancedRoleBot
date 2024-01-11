@@ -1,5 +1,6 @@
 target/
 out/artifacts/AdvancedRoleBot_jar/config.yml
+out/artifacts/AdvancedRoleBot_jar/AdvancedRoleBot.jar
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
