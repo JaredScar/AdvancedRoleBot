@@ -1,0 +1,31 @@
+Config:
+  Token: ''
+  Commands:
+    Role:
+      Command: 'arole'
+      Sub-Commands:
+        Add:
+          Command: 'add'
+          Embed:
+            Title: 'Add a role'
+            Thumbnail: ''
+            Description: '*Add a role to {MEMBER}*'
+            Color: '#ffffff'
+        Remove:
+          Command: 'remove'
+          Embed:
+            Title: 'Remove a role'
+            Thumbnail: ''
+            Description: '*Remove a role from {MEMBER}*'
+            Color: '#ffffff'
+  Roles:
+    932655785299824670: # Staff role in Badger Dev Community
+      Add:
+        - '*' # All roles below the staff role...
+      Remove:
+        - '*' # All roles below staff role...
+    932655785190764573: # Member role
+      Add:
+        - '1063977112534523936' # new role
+      Remove:
+        - '1063977112534523936' # new role

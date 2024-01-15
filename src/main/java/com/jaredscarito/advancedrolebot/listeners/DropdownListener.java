@@ -54,18 +54,29 @@ public class DropdownListener extends ListenerAdapter {
                                 }
                             }, (err) -> {
                                 // No valid user, maybe they left??
+                                evt.getMessage().delete().queue();
+                                evt.replyEmbeds(Utils.getInstance().getErrorEmbed("Cannot get member instance of " +
+                                        "specified user. Maybe they left?").build()).queue();
                             });
                         } else {
                             // Not a valid role...
+                            evt.getMessage().delete().queue();
+                            evt.replyEmbeds(Utils.getInstance().getErrorEmbed("The specified role was not valid.").build()).queue();
                         }
                     } else {
                         // No valid option selected...
+                        evt.getMessage().delete().queue();
+                        evt.replyEmbeds(Utils.getInstance().getErrorEmbed("No valid option was selected.").build()).queue();
                     }
                 } else {
                     // Guild is null...
+                    evt.getMessage().delete().queue();
+                    evt.replyEmbeds(Utils.getInstance().getErrorEmbed("Guild is null?...").build()).queue();
                 }
             } else {
                 // No user specified...
+                evt.getMessage().delete().queue();
+                evt.replyEmbeds(Utils.getInstance().getErrorEmbed("A valid user was not selected.").build()).queue();
             }
         } else {
             // Not a valid selectId... It's null

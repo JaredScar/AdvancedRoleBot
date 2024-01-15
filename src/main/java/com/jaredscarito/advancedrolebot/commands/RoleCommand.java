@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,7 +53,7 @@ public class RoleCommand extends ListenerAdapter {
                                 stringSelBuilder = StringSelectMenu.create("arb|add=" + user.getId());
                                 HashMap<String, String> roles = getApplicableRoleIds(evt.getMember());
                                 for (String roleKey : roles.keySet()) {
-                                    List<String> addableRoles = Utils.getInstance().getAddableRoles(roleKey);
+                                    HashSet<String> addableRoles = Utils.getInstance().getAddableRoles(roleKey, evt.getGuild());
                                     for (String roleId : addableRoles) {
                                         String roleName = serverRoleMapper.get(roleId);
                                         stringSelBuilder.addOption(roleName, roleId);
@@ -69,7 +70,7 @@ public class RoleCommand extends ListenerAdapter {
                                 stringSelBuilder = StringSelectMenu.create("arb|remove=" + user.getId());
                                 HashMap<String, String> roles = getApplicableRoleIds(evt.getMember());
                                 for (String roleKey : roles.keySet()) {
-                                    List<String> removeableRoles = Utils.getInstance().getRemoveableRoles(roleKey);
+                                    HashSet<String> removeableRoles = Utils.getInstance().getRemoveableRoles(roleKey, evt.getGuild());
                                     for (String roleId : removeableRoles) {
                                         String roleName = serverRoleMapper.get(roleId);
                                         stringSelBuilder.addOption(roleName, roleId);

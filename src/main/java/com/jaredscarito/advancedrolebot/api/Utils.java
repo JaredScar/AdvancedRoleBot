@@ -3,9 +3,12 @@ package com.jaredscarito.advancedrolebot.api;
 import com.jaredscarito.advancedrolebot.AdvancedRoleBot;
 import com.timvisee.yamlwrapper.YamlConfiguration;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class Utils {
@@ -14,25 +17,50 @@ public class Utils {
         return utils;
     }
 
-    public List<String> getAddableRoles(String roleId) {
+    private List<Role> getAllRolesUnderRole(Guild guild, Role parentRole) {
+        // Get all roles in the guild
+        List<Role> roles = new ArrayList<>();
+        for (Role role : guild.getRoles()) {
+            // Check if the role is under the specified parent role
+            if (role.getPosition() > parentRole.getPosition()) {
+                // This role is under the specified parent role
+                roles.add(role);
+            }
+        }
+        return roles;
+    }
+
+    public HashSet<String> getAddableRoles(String roleId, Guild guild) {
         YamlConfiguration fig = AdvancedRoleBot.getInstance().getConfig();
-        List<String> roleKeys = fig.getConfigurationSection("Config.Roles." + roleId).getKeys();
-        List<String> roleIds = new ArrayList<>();
+        List<String> roleKeys = fig.getConfigurationSection("Config.Roles." + roleId + ".Add").getKeys();
+        HashSet<String> roleIds = new HashSet<>();
         for (String roleKey : roleKeys) {
-            List<String> perms = (List<String>) fig.getList("Config.Roles." + roleId + "." + roleKey + ".Permissions");
-            if (perms.contains("ADD"))
+            if (!roleKey.equalsIgnoreCase("*")) {
                 roleIds.add(roleKey);
+            } else {
+                // It's a wildcard... They can add every role that is below the specified role...
+                Role parentRole = guild.getRoleById(roleKey);
+                for (Role role : this.getAllRolesUnderRole(guild, parentRole)) {
+                    roleIds.add(role.getId());
+                }
+            }
         }
         return roleIds;
     }
-    public List<String> getRemoveableRoles(String roleId) {
+    public HashSet<String> getRemoveableRoles(String roleId, Guild guild) {
         YamlConfiguration fig = AdvancedRoleBot.getInstance().getConfig();
-        List<String> roleKeys = fig.getConfigurationSection("Config.Roles." + roleId).getKeys();
-        List<String> roleIds = new ArrayList<>();
+        List<String> roleKeys = fig.getConfigurationSection("Config.Roles." + roleId + ".Remove").getKeys();
+        HashSet<String> roleIds = new HashSet<>();
         for (String roleKey : roleKeys) {
-            List<String> perms = (List<String>) fig.getList("Config.Roles." + roleId + "." + roleKey + ".Permissions");
-            if (perms.contains("REMOVE"))
+            if (!roleKey.equalsIgnoreCase("*")) {
                 roleIds.add(roleKey);
+            } else {
+                // It's a wildcard... They can remove every role that is below the specified role...
+                Role parentRole = guild.getRoleById(roleKey);
+                for (Role role : this.getAllRolesUnderRole(guild, parentRole)) {
+                    roleIds.add(role.getId());
+                }
+            }
         }
         return roleIds;
     }
