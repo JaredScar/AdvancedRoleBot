@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -81,8 +82,16 @@ public class RoleCommand extends ListenerAdapter {
                                 evt.replyEmbeds(Utils.getInstance().getErrorEmbed("No valid subcommand was ran.").build()).queue();
                                 reply = false;
                             }
-                            if (reply)
-                                evt.replyEmbeds(eb.build()).addActionRow(stringSelBuilder.build()).setEphemeral(true).queue();
+                            if (reply) {
+
+                                ReplyCallbackAction act = evt.replyEmbeds(eb.build());
+                                if (!stringSelBuilder.getOptions().isEmpty()) {
+                                    act.addActionRow(stringSelBuilder.build()).setEphemeral(true).queue();
+                                } else {
+                                    evt.replyEmbeds(Utils.getInstance().getErrorEmbed("There are no roles " +
+                                            "available for you to manage...").build()).queue();
+                                }
+                            }
                         }, (err) -> {
                             // Error, cannot get that user...
                             evt.replyEmbeds(Utils.getInstance().getErrorEmbed("Cannot get member instance of " +
