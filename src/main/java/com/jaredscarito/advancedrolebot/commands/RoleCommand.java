@@ -12,10 +12,8 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 public class RoleCommand extends ListenerAdapter {
     @Override
@@ -42,6 +40,7 @@ public class RoleCommand extends ListenerAdapter {
                             eb.setAuthor("AdvancedRoleBot");
                             eb.setFooter("AdvancedRoleBot - github.com/JaredScar");
                             StringSelectMenu.Builder stringSelBuilder = StringSelectMenu.create("arb");
+                            List<StringSelectMenu> menus = new ArrayList<>();
                             boolean reply = true;
                             if (evt.getSubcommandName().equalsIgnoreCase(addCmd)) {
                                 // ADD
@@ -51,14 +50,35 @@ public class RoleCommand extends ListenerAdapter {
                                 eb.setColor(new Color(rgb));
                                 if (!AdvancedRoleBot.getInstance().getConfig().getString("Config.Commands.Role.Sub-Commands.Add.Embed.Thumbnail").isEmpty())
                                     eb.setThumbnail(AdvancedRoleBot.getInstance().getConfig().getString("Config.Commands.Role.Sub-Commands.Add.Embed.Thumbnail"));
-                                stringSelBuilder = StringSelectMenu.create("arb|add=" + user.getId());
+                                stringSelBuilder = StringSelectMenu.create("0--arb|add=" + user.getId());
                                 HashMap<String, String> roles = getApplicableRoleIds(evt.getMember());
+                                TreeMap<String, String> sortedRoles = new TreeMap<>();
                                 for (String roleKey : roles.keySet()) {
                                     HashSet<String> addableRoles = Utils.getInstance().getAddableRoles(roleKey, evt.getGuild());
                                     for (String roleId : addableRoles) {
                                         String roleName = serverRoleMapper.get(roleId);
-                                        stringSelBuilder.addOption(roleName, roleId);
+                                        sortedRoles.put(roleName, roleId);
                                     }
+                                }
+                                for (Map.Entry<String, String> entry : sortedRoles.entrySet()) {
+                                    String roleName = entry.getKey();
+                                    String roleId = entry.getValue();
+
+                                    stringSelBuilder.addOption(roleName, roleId);
+
+                                    if (stringSelBuilder.getOptions().size() == 25) {
+                                        stringSelBuilder.setPlaceholder(stringSelBuilder.getOptions().get(0).getLabel()
+                                                + " => " + stringSelBuilder.getOptions()
+                                                .get(stringSelBuilder.getOptions().size() - 1).getLabel());
+                                        menus.add(stringSelBuilder.build());
+                                        stringSelBuilder = StringSelectMenu.create(menus.size() + "--arb|add=" + user.getId());
+                                    }
+                                }
+                                if (!stringSelBuilder.getOptions().isEmpty()) {
+                                    stringSelBuilder.setPlaceholder(stringSelBuilder.getOptions().get(0).getLabel()
+                                            + " => " + stringSelBuilder.getOptions()
+                                            .get(stringSelBuilder.getOptions().size() - 1).getLabel());
+                                    menus.add(stringSelBuilder.build());
                                 }
                             } else if (evt.getSubcommandName().equalsIgnoreCase(removeCmd)) {
                                 // REMOVE
@@ -68,14 +88,36 @@ public class RoleCommand extends ListenerAdapter {
                                 eb.setColor(new Color(rgb));
                                 if (!AdvancedRoleBot.getInstance().getConfig().getString("Config.Commands.Role.Sub-Commands.Remove.Embed.Thumbnail").isEmpty())
                                     eb.setThumbnail(AdvancedRoleBot.getInstance().getConfig().getString("Config.Commands.Role.Sub-Commands.Remove.Embed.Thumbnail"));
-                                stringSelBuilder = StringSelectMenu.create("arb|remove=" + user.getId());
+                                stringSelBuilder = StringSelectMenu.create("0--arb|remove=" + user.getId());
                                 HashMap<String, String> roles = getApplicableRoleIds(evt.getMember());
+                                TreeMap<String, String> sortedRoles = new TreeMap<>();
                                 for (String roleKey : roles.keySet()) {
                                     HashSet<String> removeableRoles = Utils.getInstance().getRemoveableRoles(roleKey, evt.getGuild());
                                     for (String roleId : removeableRoles) {
                                         String roleName = serverRoleMapper.get(roleId);
-                                        stringSelBuilder.addOption(roleName, roleId);
+                                        sortedRoles.put(roleName, roleId);
                                     }
+                                }
+                                for (Map.Entry<String, String> entry : sortedRoles.entrySet()) {
+                                    String roleName = entry.getKey();
+                                    String roleId = entry.getValue();
+
+                                    stringSelBuilder.addOption(roleName, roleId);
+
+                                    if (stringSelBuilder.getOptions().size() == 25) {
+                                        stringSelBuilder.setPlaceholder(stringSelBuilder.getOptions().get(0).getLabel()
+                                                + " => " + stringSelBuilder.getOptions()
+                                                .get(stringSelBuilder.getOptions().size() - 1).getLabel());
+                                        menus.add(stringSelBuilder.build());
+                                        stringSelBuilder = StringSelectMenu.create(menus.size() + "--arb|remove=" + user.getId());
+                                    }
+                                }
+                                if (!stringSelBuilder.getOptions().isEmpty()) {
+                                    stringSelBuilder.setPlaceholder(stringSelBuilder.getOptions().get(0).getLabel()
+                                            + " => " + stringSelBuilder.getOptions()
+                                            .get(stringSelBuilder.getOptions().size() - 1).getLabel());
+                                    menus.add(stringSelBuilder.build());
+                                    menus.add(stringSelBuilder.build());
                                 }
                             } else {
                                 // No valid command ran...
@@ -83,10 +125,12 @@ public class RoleCommand extends ListenerAdapter {
                                 reply = false;
                             }
                             if (reply) {
-
                                 ReplyCallbackAction act = evt.replyEmbeds(eb.build());
-                                if (!stringSelBuilder.getOptions().isEmpty()) {
-                                    act.addActionRow(stringSelBuilder.build()).setEphemeral(true).queue();
+                                if (!menus.isEmpty()) {
+                                    for (StringSelectMenu menu : menus) {
+                                        act.addActionRow(menu);
+                                    }
+                                    act.setEphemeral(true).queue();
                                 } else {
                                     evt.replyEmbeds(Utils.getInstance().getErrorEmbed("There are no roles " +
                                             "available for you to manage...").build()).queue();

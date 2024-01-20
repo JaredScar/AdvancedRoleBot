@@ -17,7 +17,7 @@ public class DropdownListener extends ListenerAdapter {
             if (evt.getComponent().getId().split("=").length > 1) {
                 String userId = evt.getComponent().getId().split("=")[1];
                 if (evt.getGuild() != null) {
-                    String finalSelectId = selectId;
+                    String finalSelectId = selectId.split("--")[1];
                     SelectOption selOpt = null;
                     for (SelectOption opt : evt.getSelectedOptions()) {
                         selOpt = opt;

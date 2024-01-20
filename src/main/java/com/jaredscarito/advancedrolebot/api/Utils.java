@@ -22,7 +22,7 @@ public class Utils {
         List<Role> roles = new ArrayList<>();
         for (Role role : guild.getRoles()) {
             // Check if the role is under the specified parent role
-            if (role.getPosition() > parentRole.getPosition()) {
+            if (role.getPosition() < parentRole.getPosition()) {
                 // This role is under the specified parent role
                 roles.add(role);
             }
@@ -32,14 +32,14 @@ public class Utils {
 
     public HashSet<String> getAddableRoles(String roleId, Guild guild) {
         YamlConfiguration fig = AdvancedRoleBot.getInstance().getConfig();
-        List<String> roleKeys = fig.getConfigurationSection("Config.Roles." + roleId + ".Add").getKeys();
+        List<String> roleKeys = (List<String>) fig.getList("Config.Roles." + roleId + ".Add");
         HashSet<String> roleIds = new HashSet<>();
         for (String roleKey : roleKeys) {
             if (!roleKey.equalsIgnoreCase("*")) {
                 roleIds.add(roleKey);
             } else {
                 // It's a wildcard... They can add every role that is below the specified role...
-                Role parentRole = guild.getRoleById(roleKey);
+                Role parentRole = guild.getRoleById(roleId);
                 for (Role role : this.getAllRolesUnderRole(guild, parentRole)) {
                     roleIds.add(role.getId());
                 }
@@ -49,14 +49,14 @@ public class Utils {
     }
     public HashSet<String> getRemoveableRoles(String roleId, Guild guild) {
         YamlConfiguration fig = AdvancedRoleBot.getInstance().getConfig();
-        List<String> roleKeys = fig.getConfigurationSection("Config.Roles." + roleId + ".Remove").getKeys();
+        List<String> roleKeys = (List<String>) fig.getList("Config.Roles." + roleId + ".Remove");
         HashSet<String> roleIds = new HashSet<>();
         for (String roleKey : roleKeys) {
             if (!roleKey.equalsIgnoreCase("*")) {
                 roleIds.add(roleKey);
             } else {
                 // It's a wildcard... They can remove every role that is below the specified role...
-                Role parentRole = guild.getRoleById(roleKey);
+                Role parentRole = guild.getRoleById(roleId);
                 for (Role role : this.getAllRolesUnderRole(guild, parentRole)) {
                     roleIds.add(role.getId());
                 }
