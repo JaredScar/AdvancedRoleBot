@@ -117,7 +117,6 @@ public class RoleCommand extends ListenerAdapter {
                                             + " => " + stringSelBuilder.getOptions()
                                             .get(stringSelBuilder.getOptions().size() - 1).getLabel());
                                     menus.add(stringSelBuilder.build());
-                                    menus.add(stringSelBuilder.build());
                                 }
                             } else {
                                 // No valid command ran...
